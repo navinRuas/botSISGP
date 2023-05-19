@@ -1,0 +1,208 @@
+
+window.addEventListener('load', function() {
+    document.querySelector('.box').style.display = 'flex';
+    const url = "De-Para.xlsx";
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", url, true);
+    xhr.responseType = "arraybuffer";
+    xhr.onload = function(e) {
+      const arraybuffer = xhr.response;
+      const data = new Uint8Array(arraybuffer);
+      const workbook = XLSX.read(data, {type: "array"});
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      const rows = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+      const codIndex = rows[1].indexOf("CodDemanda");
+      const tipoIndex = rows[1].indexOf("Tipo de Demanda");
+      const codAtividadeIndex = rows[1].indexOf("CodAtividade");
+      const atividadeIndex = rows[1].indexOf("Atividade");
+      const codProdutoIndex = rows[1].indexOf("CodProduto");
+      const produtoIndex = rows[1].indexOf("Produto");
+      const optionsDDD = [];
+      const valuesDDD = [];
+      for (let i = 1; i < rows.length; i++) {
+        const cod = rows[i][codIndex];
+        const tipo = rows[i][tipoIndex];
+        if (cod === undefined || tipo === undefined) {
+          break;
+        }
+
+        if (cod && tipo && !optionsDDD.includes(tipo)) {
+          optionsDDD.push(tipo);
+          valuesDDD.push(cod);
+        }
+      }
+
+    const selectDDD = document.getElementById("DDD");
+    for (let i = 0; i < optionsDDD.length; i++) {
+      const option = document.createElement("option");
+      option.text = optionsDDD[i];
+      option.value = valuesDDD[i];
+      if (isNaN(option.value)){option.value = '';}
+      selectDDD.add(option);
+    }
+      const optionsAT = [];
+      const valuesAT = [];
+      const dddAT = [];
+      for (let i = 1; i < rows.length; i++) {
+        const codAtividade = rows[i][codAtividadeIndex];
+        const atividade = rows[i][atividadeIndex];
+        const codDemanda = rows[i][codIndex];
+        if (codAtividade === undefined && atividade === undefined) {
+          break;
+        }
+
+        if ((codAtividade && atividade && !optionsAT.includes(atividade)) && (codAtividade !== undefined && atividade !== undefined)) {
+          optionsAT.push(atividade);
+          valuesAT.push(codAtividade);
+          dddAT.push(codDemanda);
+        }
+      }
+      const selectAT = document.getElementById("AT");
+      for (let i = 0; i < optionsAT.length; i++) {
+        const option = document.createElement("option");
+        option.text = optionsAT[i];
+        option.value = valuesAT[i];
+        option.setAttribute("data-ddd", dddAT[i]);
+        selectAT.add(option);
+      }
+      const optionsPP = [];
+      const valuesPP = [];
+      const dddPP = [];
+      const atPP = [];
+      for (let i = 1; i < rows.length; i++) {
+        const codProduto = rows[i][codProdutoIndex];
+        const produto = rows[i][produtoIndex];
+        const codDemanda = rows[i][codIndex];
+        const codAtividade = rows[i][codAtividadeIndex];
+        if (codProduto === undefined && produto === undefined) {
+          console.log("Valores inválido encontrado, parando o loop");
+          break;
+        }
+
+        if ((codProduto && produto && !optionsPP.includes(produto)) && (codProduto !== undefined && produto !== undefined)) {
+          optionsPP.push(produto);
+          valuesPP.push(codProduto);
+          dddPP.push(codDemanda);
+          atPP.push(codAtividade);
+        }
+      }
+      const selectPP = document.getElementById("PP");
+      for (let i = 0; i < optionsPP.length; i++) {
+        const option = document.createElement("option");
+        option.text = optionsPP[i];
+        option.value = valuesPP[i];
+        option.setAttribute("data-ddd", dddPP[i]);
+        option.setAttribute("data-at", atPP[i]);
+        selectPP.add(option);
+      }
+      document.getElementById("DDD").disabled = false;
+      document.querySelector('.box').style.display = 'none';
+    };
+  xhr.send();
+});
+
+
+123123123123123123
+
+
+
+window.addEventListener('load', function() {
+  document.querySelector('.box').style.display = 'flex';
+  const xhr = new XMLHttpRequest();
+  xhr.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      console.log(this.responseText); // Log the response from the server
+      const rows = JSON.stringify(this.responseText);
+      const codIndex = rows[0].indexOf("CodDemanda");
+      const tipoIndex = rows[0].indexOf("Tipo de Demanda");
+      const codAtividadeIndex = rows[0].indexOf("CodAtividade");
+      const atividadeIndex = rows[0].indexOf("Atividade");
+      const codProdutoIndex = rows[0].indexOf("CodProduto");
+      const produtoIndex = rows[0].indexOf("Produto");
+
+      // DDD
+      const optionsDDD = [];
+      const valuesDDD = [];
+      for (let i = 1; i < rows.length; i++) {
+        const cod = rows[i][codIndex];
+        const tipo = rows[i][tipoIndex];
+        if (cod === undefined || tipo === undefined) {
+          break;
+        }
+        if (cod && tipo && !optionsDDD.includes(tipo)) {
+          optionsDDD.push(tipo);
+          valuesDDD.push(cod);
+        }
+      }
+      const selectDDD = document.getElementById("DDD");
+      for (let i = 0; i < optionsDDD.length; i++) {
+        const option = document.createElement("option");
+        option.text = optionsDDD[i];
+        option.value = valuesDDD[i];
+        if (isNaN(option.value)){option.value = '';}
+        selectDDD.add(option);
+      }
+
+      // AT
+      const optionsAT = [];
+      const valuesAT = [];
+      const dddAT = [];
+      for (let i = 1; i < rows.length; i++) {
+        const codAtividade = rows[i][codAtividadeIndex];
+        const atividade = rows[i][atividadeIndex];
+        const codDemanda = rows[i][codIndex];
+        if (codAtividade === undefined && atividade === undefined) {
+          break;
+        }
+        if ((codAtividade && atividade && !optionsAT.includes(atividade)) && (codAtividade !== undefined && atividade !== undefined)) {
+          optionsAT.push(atividade);
+          valuesAT.push(codAtividade);
+          dddAT.push(codDemanda);
+        }
+      }
+      const selectAT = document.getElementById("AT");
+      for (let i = 0; i < optionsAT.length; i++) {
+        const option = document.createElement("option");
+        option.text = optionsAT[i];
+        option.value = valuesAT[i];
+        option.setAttribute("data-ddd", dddAT[i]);
+        selectAT.add(option);
+      }
+
+      // PP
+      const optionsPP = [];
+      const valuesPP = [];
+      const dddPP = [];
+      const atPP = [];
+      for (let i = 1; i < rows.length; i++) {
+        const codProduto = rows[i][codProdutoIndex];
+        const produto = rows[i][produtoIndex];
+        const codDemanda = rows[i][codIndex];
+        const codAtividade = rows[i][codAtividadeIndex];
+        if (codProduto === undefined && produto === undefined) {
+          break;
+        }
+        if ((codProduto && produto && !optionsPP.includes(produto)) && (codProduto !== undefined && produto !== undefined)) {
+          optionsPP.push(produto);
+          valuesPP.push(codProduto);
+          dddPP.push(codDemanda);
+          atPP.push(codAtividade);
+        }
+      }
+      const selectPP = document.getElementById("PP");
+      for (let i = 0; i < optionsPP.length; i++) {
+        const option = document.createElement("option");
+        option.text = optionsPP[i];
+        option.value = valuesPP[i];
+        option.setAttribute("data-ddd", dddPP[i]);
+        option.setAttribute("data-at", atPP[i]);
+        selectPP.add(option);
+      }
+      document.getElementById("DDD").disabled = false;
+      document.querySelector('.box').style.display = 'none';
+    }
+  };
+  xhr.open("GET", "get_data.py", true);
+  xhr.send();
+});
