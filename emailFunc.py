@@ -7,6 +7,9 @@ def enviar_notificacao(servidor, html):
     # Corrige a codificação do HTML, se necessário
     html_corrigido = corrigir_codificacao(html)
 
+    # Salva o conteúdo do email em um arquivo
+    with open('teste.html', 'w', encoding='utf-8') as f:
+        f.write(html_corrigido)
 
     # Jamil para de tirar meu email, apenas comente e descomente o seu.
     #email_servidor = "jamil.monteiro@inep.gov.br"
@@ -18,7 +21,7 @@ def enviar_notificacao(servidor, html):
     outlook = win32.Dispatch('outlook.application')
     email = outlook.CreateItem(0)
 
-    subject = 'Notificação de Plano de Trabalho'
+    subject = 'Notificação automática - PGD'
 
     email.Subject = subject
     email.BodyFormat = 2  # 2: olFormatHTML
@@ -55,3 +58,9 @@ def enviar_notificacao_supervisor(servidor, html):
         print('Email enviado com sucesso!')
     except Exception as e:
         print(f'Erro: Falha ao enviar o email: {e}')
+
+if __name__ == '__main__':
+    # Teste da função enviar_notificacao()
+    servidor = 'localhost'
+    html = '<html><body><h1>Teste</h1><p>Este é um teste de envio de email.</p></body></html>'
+    enviar_notificacao(servidor, html)  

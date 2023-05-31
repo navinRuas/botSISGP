@@ -3,6 +3,7 @@ import os
 import json
 import mysql.connector
 from datetime import datetime
+from extraUtils import gap
 
 def update_ano_json():
     current_year = str(datetime.now().year)
@@ -12,7 +13,7 @@ def update_ano_json():
 
     # Localiza o repositório Gerador-Desc no disco do usuário
     for root, dirs, files in os.walk(os.path.expanduser("~")):
-        if '.git' in dirs and os.path.basename(root) == 'Gerador-Desc':
+        if '.git' in dirs and os.path.basename(root) == 'geradorDesc':
             repo_path = root
             break
 
@@ -46,7 +47,7 @@ def update_depara_json():
 
     # Localiza o repositório Gerador-Desc no disco do usuário
     for root, dirs, files in os.walk(os.path.expanduser("~")):
-        if '.git' in dirs and os.path.basename(root) == 'Gerador-Desc':
+        if '.git' in dirs and os.path.basename(root) == 'geradorDesc':
             repo_path = root
             break
 
@@ -55,7 +56,7 @@ def update_depara_json():
         return
 
     # Carrega o arquivo config.json
-    with open(os.path.join(repo_path, 'sec', 'config.json'), 'r', encoding='utf-8') as f:
+    with open(gap('sec\\config.json'), 'r', encoding='utf-8') as f:
         config = json.load(f)
 
     # Conecta ao servidor MySQL
@@ -69,7 +70,7 @@ def update_depara_json():
     cursor = conn.cursor()
 
     # Consulta o servidor MySQL para obter os dados
-    cursor.execute("SELECT * FROM eAud.`De-Para`")
+    cursor.execute("SELECT * FROM SISGP.`De-Para`")
     rows = cursor.fetchall()
 
     # Cria um novo objeto de dados com base nos dados do SQL
@@ -102,7 +103,7 @@ def webUP():
 
     # Localiza o repositório Gerador-Desc no disco do usuário
     for root, dirs, files in os.walk(os.path.expanduser("~")):
-        if '.git' in dirs and os.path.basename(root) == 'Gerador-Desc':
+        if '.git' in dirs and os.path.basename(root) == 'geradorDesc':
             repo_path = root
             break
 
@@ -114,3 +115,6 @@ def webUP():
     update_ano_json()
     update_depara_json()
     print("Atualização Gerador Descrição Web Concluída!")
+
+if __name__ == '__main__':
+    webUP()
