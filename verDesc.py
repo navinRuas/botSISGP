@@ -6,7 +6,7 @@ def verificar_campo_descricao():
     print('Verificando campo descrição...')
     print('Obtendo dados do banco de dados...')
     # Obtém os dados dos servidores do banco de dados Pontalina
-    dados = pontalina("SELECT DISTINCT [pactoTrabalhoId], [NomeServidor], [SituacaoPactoTrabalho], [DtInicioPactoTrab], [DtFimPactoTrab] FROM [ProgramaGestao].[VW_PlanoTrabalhoAUDIN] WHERE [SituacaoPactoTrabalho] = 'Executado' and descricao like '%<demanda>%%</demanda>%'")
+    dados = pontalina("SELECT DISTINCT [pactoTrabalhoId], [NomeServidor], [SituacaoPactoTrabalho], [DtInicioPactoTrab], [DtFimPactoTrab] FROM [ProgramaGestao].[VW_PlanoTrabalhoAUDIN] WHERE [SituacaoPactoTrabalho] = 'Enviado para aceite' and descricao like '%<demanda>%%</demanda>%'")
 
     print('Verificando dados...')
     # Loop pelos dados dos servidores
