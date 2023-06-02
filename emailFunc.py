@@ -7,13 +7,15 @@ def enviar_notificacao(servidor, html):
     # Corrige a codificação do HTML, se necessário
     html_corrigido = corrigir_codificacao(html)
 
-    # Salva o conteúdo do email em um arquivo
-    with open('teste.html', 'w', encoding='utf-8') as f:
-        f.write(html_corrigido)
-
-    # Jamil para de tirar meu email, apenas comente e descomente o seu.
     #email_servidor = "jamil.monteiro@inep.gov.br"
     email_servidor = "navinchandry.ruas@inep.gov.br"
+
+    """
+    # Lê o arquivo email.json e obtém o endereço de e-mail do servidor
+    with open('email.json', 'r') as f:
+        emails = json.load(f)
+        email_servidor = emails[servidor]
+    """
 
     print('Enviando notificação ao servidor... ' + servidor)
 
@@ -40,9 +42,10 @@ def enviar_notificacao_supervisor(servidor, html):
     html_corrigido = corrigir_codificacao(html)
 
     #email_supervisor = "jamil.monteiro@inep.gov.br"
-    email_supervisor = "navinchandry.ruas@inep.gov.br"
+    #email_supervisor = "navinchandry.ruas@inep.gov.br"
+    email_supervisor = "cleuber.fernandes@inep.gov.br"
 
-    subject = 'Sup Notificação de Plano de Trabalho'
+    subject = 'Notificação de Plano de Trabalho'
 
     # Inicializa o objeto do Outlook
     outlook = win32.Dispatch('outlook.application')
