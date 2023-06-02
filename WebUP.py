@@ -70,7 +70,7 @@ def update_depara_json():
     cursor = conn.cursor()
 
     # Consulta o servidor MySQL para obter os dados
-    cursor.execute("SELECT * FROM SISGP.`De-Para`")
+    cursor.execute("SELECT * FROM `De-Para`")
     rows = cursor.fetchall()
 
     # Cria um novo objeto de dados com base nos dados do SQL
@@ -80,13 +80,13 @@ def update_depara_json():
             item = {
                 'CodDemanda': row[0],
                 'Tipo de Demanda': row[1],
-                'CodAtividade': row[2],
-                'Atividade': row[3],
-                'CodProduto': row[4],
-                'Produto': row[5],
-                'Atividade2': row[6],
-                'nº da atividade': row[7],
-                'Atividade PGD': row[8]
+                'CodAtividade': row[3],
+                'Atividade': row[4],
+                'CodProduto': row[6],
+                'Produto': row[7],
+                'Atividade2': row[9],
+                'nº da atividade': row[10],
+                'Atividade PGD': row[12]
             }
             data.append(item)
 
@@ -97,19 +97,6 @@ def update_depara_json():
     print("De-Para do Gerador foi atualizado!")
 
 def webUP():
-    repo_path = None
-
-    print("Inicializando Atualização De-Para.json...")
-
-    # Localiza o repositório Gerador-Desc no disco do usuário
-    for root, dirs, files in os.walk(os.path.expanduser("~")):
-        if '.git' in dirs and os.path.basename(root) == 'geradorDesc':
-            repo_path = root
-            break
-
-    if not repo_path:
-        print("Repositório Gerador-Desc não encontrado no disco do usuário.")
-        return
 
     print("Inicializando Atualização Gerador Descrição Web...")
     update_ano_json()
