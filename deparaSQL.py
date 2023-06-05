@@ -1,3 +1,4 @@
+# Autor: Navin Ruas
 # -*- coding: utf-8 -*-
 import json
 import pandas as pd

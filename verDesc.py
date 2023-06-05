@@ -1,3 +1,4 @@
+# Autor: Navin Ruas
 from emailFunc import enviar_notificacao, enviar_notificacao_supervisor
 from extraUtils import personalizar_html, gap, stripFunc, normalize, html_escape
 from Conexao import pontalina, auditoria
