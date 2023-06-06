@@ -1,19 +1,22 @@
 # Autor: Navin Ruas
+# -*- coding: utf-8 -*-
 from emailFunc import enviar_notificacao, enviar_notificacao_supervisor
-from extraUtils import personalizar_html, gap, stripFunc, normalize, html_escape
+from extraUtils import personalizar_html, gap, stripFunc, normalize, html_escape, is_valid_number
 from Conexao import pontalina, auditoria
+import re
+
+
 
 def verificar_campo_descricao():
     print('Verificando campo descrição...')
     print('Obtendo dados do banco de dados...')
     # Obtém os dados dos servidores do banco de dados Pontalina
-    dados = pontalina("SELECT DISTINCT [pactoTrabalhoId], [NomeServidor], [SituacaoPactoTrabalho], [DtInicioPactoTrab], [DtFimPactoTrab] FROM [ProgramaGestao].[VW_PlanoTrabalhoAUDIN] WHERE [SituacaoPactoTrabalho] = 'Enviado para aceite' and descricao like '%<demanda>%%</demanda>%'")
+    dados = pontalina("SELECT DISTINCT [pactoTrabalhoId], [NomeServidor], [SituacaoPactoTrabalho], [DtInicioPactoTrab], [DtFimPactoTrab] FROM [ProgramaGestao].[VW_PlanoTrabalhoAUDIN] WHERE [SituacaoPactoTrabalho] = 'Enviado para aceite'")
 
     print('Verificando dados...')
     # Loop pelos dados dos servidores
     for dado in dados:
         tempConcat = ""
-        bFlag = False
 
         # Obtém os dados de auditoria
         depara = auditoria("SELECT * FROM SISGP.`De-Para`")
@@ -23,76 +26,62 @@ def verificar_campo_descricao():
 
         # Loop pelos dados temporários dos servidores
         for tempDado in tempDados:
-            demanda = stripFunc(tempDado['descricao'], 'demanda')
-            atividade = stripFunc(tempDado['descricao'], 'atividade')
-            produto = stripFunc(tempDado['descricao'], 'produto')
-            atividadeSISGP = tempDado['titulo']
+            demanda = int(stripFunc(tempDado['descricao'], 'demanda'))
+            atividade = int(stripFunc(tempDado['descricao'], 'atividade'))
+            produto = int(stripFunc(tempDado['descricao'], 'produto'))
+            atividadeSISGP = normalize(tempDado['titulo'])
 
             # Verifica se existem dados de auditoria
             if depara is not None:
-                # Loop pelos dados de auditoria 
+                matching_items = []
+                matching_item = ''
                 for row in depara:
-                    # Convert string values to integers before comparing them
-                    row0 = int(row[0]) if isinstance(row[0], str) and row[0].isdigit() else row[0]
-                    row3 = int(row[3]) if isinstance(row[3], str) and row[3].isdigit() else row[3]
-                    row6 = int(row[6]) if isinstance(row[6], str) and row[6].isdigit() else row[6]
-                    demanda_int = int(demanda) if isinstance(demanda, str) and demanda.isdigit() else demanda
-                    atividade_int = int(atividade) if isinstance(atividade, str) and atividade.isdigit() else atividade
-                    produto_int = int(produto) if isinstance(produto, str) and produto.isdigit() else produto
+                    tdemanda = int(row[0]) if row[0] != '' else row[0]
+                    tatividade = int(row[3]) if row[3] != '' else row[3]
+                    tproduto = int(row[6]) if row[6] != '' else row[6]
 
-                    if row0 == demanda_int and row3 == atividade_int and row6 == produto_int:
-                        print(f"Servidor {tempDado['NomeServidor']} possui demanda, atividade e produto na ordem correta")
-                        break
-                else:
-                    print(f"Servidor {tempDado['NomeServidor']} possui demanda {demanda}, atividade {atividade} e produto {produto} na ordem incorreta")
-                    bFlag = True
-                    tempConcat += f"<tr><td>Servidor possui descrição incorreta.</td><td>{tempDado['titulo']}</td><td>{tempDado['tempoPrevistoTotal']}</td></tr>"
+                    # Verifica se há correspondência nos campos demanda, atividade e produto
+                    if demanda == tdemanda and atividade == tatividade and produto == tproduto:
+                        matching_items.append((tdemanda, tatividade, tproduto))
 
-                for roww in depara:
-                    # Convert string values to integers before comparing them
-                    roww0 = int(roww[0]) if isinstance(roww[0], str) and roww[0].isdigit() else roww[0]
-                    roww3 = int(roww[3]) if isinstance(roww[3], str) and roww[3].isdigit() else roww[3]
-                    roww6 = int(roww[6]) if isinstance(roww[6], str) and roww[6].isdigit() else roww[6]
-                    demanda_int = int(demanda) if isinstance(demanda, str) and demanda.isdigit() else demanda
-                    atividade_int = int(atividade) if isinstance(atividade, str) and atividade.isdigit() else atividade
-                    produto_int = int(produto) if isinstance(produto, str) and produto.isdigit() else produto
+                # Verifica se há correspondência também no campo atividadeSISGP
+                for row in depara:
+                    tdemanda = int(row[0]) if row[0] != '' else row[0]
+                    tatividade = int(row[3]) if row[3] != '' else row[3]
+                    tproduto = int(row[6]) if row[6] != '' else row[6]
+                    tatividadeSISGP = normalize(f'{row[9]}-{row[10]} - {row[12]}')
 
-                    compAtv = f"{roww[9]}-{roww[10]} - {roww[12]}"
-                    if (normalize(compAtv) == normalize(atividadeSISGP)) and (roww[0] == demanda and roww[3] == atividade and roww[6] == produto):
-                        print(f"Servidor {tempDado['NomeServidor']} possui atividade SISGP correta.")
-                        break
-                else: 
-                    # Caso contrário, adiciona o erro à variável temporária e servidor à lista de servidores com erros.
-                    print(f"Servidor {tempDado['NomeServidor']} possui atividade SISGP incorreta")
-                    bFlag = True
-                    tempConcat += f"<tr><td>Servidor possui atividade SISGP incorreta.</td><td>{tempDado['titulo']}</td><td>{tempDado['tempoPrevistoTotal']}</td></tr>"
+                    # Verifica se há correspondência nos campos demanda, atividade e produto
+                    if demanda == tdemanda and atividade == tatividade and produto == tproduto and atividadeSISGP == tatividadeSISGP:
+                        matching_item = f'{tatividadeSISGP}'
 
-            # Caso não existam dados de auditoria, verifica se o servidor possui demanda, atividade e produto na ordem correta
-            demanda_int = int(demanda) if isinstance(demanda, str) and demanda.isdigit() else demanda
 
-            if demanda_int == 2 or demanda_int == 3:
-                try:
-                    result = stripFunc(tempDado['descricao'], 'idEaud')
-                    if not result.isdigit():
-                        raise ValueError('Result is not a number')
-                except:
-                    print(f"Servidor {tempDado['NomeServidor']} não possui idEaud")
-                    bFlag = True
-                    tempConcat += f"<tr><td>Servidor não possui idEaud.</td><td>{tempDado['titulo']}</td><td>{tempDado['tempoPrevistoTotal']}</td></tr>"
+                # Verifica se há correspondência nos campos e envia notificação em caso de erro
+                if not matching_items:
+                    tempConcat += f"<td>Erro: Nenhuma correspondência encontrada para a Descrição com demanda {demanda}, atividade {atividade}, produto {produto}.</td><td>{tempDado['titulo']}</td><td>{tempDado['tempoPrevistoTotal']}</td></tr>"
+                elif len(matching_items) > 1:
+                    tempConcat += f"<td>Erro: Múltiplas correspondências encontradas para a Descrição com demanda {demanda}, atividade {atividade}, produto {produto}.</td><td>{tempDado['titulo']}</td><td>{tempDado['tempoPrevistoTotal']}</td></tr>"
+                if matching_item == '':
+                    tempConcat += f"<td>Erro: Nenhuma correspondência encontrada para a Descrição com demanda {demanda}, atividade {atividade}, produto {produto}, atividadeSISGP {atividadeSISGP}.</td><td>{tempDado['titulo']}</td><td>{tempDado['tempoPrevistoTotal']}</td></tr>"
 
-        # Verifica se há erros de descrição e envia notificação por e-mail
-        if bFlag:
-            print(f"Servidor {dado['NomeServidor']} possui erros de descrição, enviando notificação por e-mail.")
+                # Verifica se é demanda 2 ou 3 e se o stripFunc retorna um número válido
+                if demanda in [2, 3]:
+                    stripped_value = stripFunc(tempDado['descricao'], 'idEaud')
+                    print(stripped_value)
+                    if not is_valid_number(stripped_value):
+                        tempConcat += f"<td>Erro: Valor idEaud em um formato inválido.</td><td>{tempDado['titulo']}</td><td>{tempDado['tempoPrevistoTotal']}</td></tr>"
+
+        # Verifica se houve algum erro e envia notificação
+        if tempConcat:
             html = personalizar_html(gap('mail\\descIncorreto.html'), {'nome': dado['NomeServidor'], 'erros': tempConcat, 'dtInicio': dado['DtInicioPactoTrab'], 'dtFim': dado['DtFimPactoTrab']})
             enviar_notificacao(dado['NomeServidor'], html)
-            enviar_notificacao_supervisor(dado['NomeServidor'], html)
+            #enviar_notificacao_supervisor(dado['NomeServidor'], html)
             break
-
-        # Caso contrário, envia notificação por e-mail ao supervisor
-        else:
+        if tempConcat == '':
             html = personalizar_html(gap('mail\\descCorreto.html'), {'nome': dado['NomeServidor'], 'dtInicio': dado['DtInicioPactoTrab'], 'dtFim': dado['DtFimPactoTrab'], 'situ': dado['SituacaoPactoTrabalho']})
             enviar_notificacao_supervisor(dado['NomeServidor'], html)
             break
+
 
 if __name__ == "__main__":
     verificar_campo_descricao()

@@ -70,4 +70,13 @@ def stripTrash(striptext):
 def normalize(s):
     s = s.lower()
     s = re.sub(r'\b0+(\d)', r'\1', s)
+    s = s.rstrip('.')
     return s
+
+# Define a function to check if a number is valid
+def is_valid_number(number):
+    return re.search(r'\d{7}', number) is not None
+
+if __name__ == "__main__":
+    print('Este módulo não deve ser executado diretamente.')
+    print('Para executar este módulo, importe-o em outro script.')
