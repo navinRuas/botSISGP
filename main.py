@@ -44,7 +44,7 @@ import threading
 from checkScript import check_script
 
 def main():
-    
+
     # Cria uma thread para executar a função check_script em segundo plano
     t = threading.Thread(target=check_script)
     t.start()
@@ -52,7 +52,7 @@ def main():
     # Loop infinito para verificar se é hora de executar o script
     while True:
         current_time = time.localtime()
-        if current_time.tm_hour == 14 and current_time.tm_min == 0:
+        if current_time.tm_hour == 14 and current_time.tm_min == 0 and current_time.tm_sec in range(0, 59):
             ctrl.ochamado()
         # Dorme por 1 minuto para reduzir o uso de memória
         time.sleep(60)

@@ -42,8 +42,8 @@ def enviar_notificacao_supervisor(servidor, html):
     html_corrigido = corrigir_codificacao(html)
 
     #email_supervisor = "jamil.monteiro@inep.gov.br"
-    #email_supervisor = "navinchandry.ruas@inep.gov.br"
-    email_supervisor = "cleuber.fernandes@inep.gov.br"
+    email_supervisor = "navinchandry.ruas@inep.gov.br"
+    #email_supervisor = "cleuber.fernandes@inep.gov.br"
 
     subject = 'Notificação de Plano de Trabalho'
 
