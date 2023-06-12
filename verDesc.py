@@ -23,10 +23,10 @@ def verificar_campo_descricao():
 
         # Loop pelos dados temporários dos servidores
         for tempDado in tempDados:
-            demanda = int(stripFunc(tempDado['descricao'], 'demanda')) if is_valid_number(stripFunc(tempDado['descricao'], 'demanda')) else ''
-            atividade = int(stripFunc(tempDado['descricao'], 'atividade')) if is_valid_number(stripFunc(tempDado['descricao'], 'atividade')) else ''
-            produto = int(stripFunc(tempDado['descricao'], 'produto')) if is_valid_number(stripFunc(tempDado['descricao'], 'produto')) else ''
-            atividadeSISGP = normalize(tempDado['titulo']) if tempDado['titulo'] is not None else ''
+            demanda = int(stripFunc(tempDado['descricao'], 'demanda')) if stripFunc(tempDado['descricao'], 'demanda') != '' else 'N/A'
+            atividade = int(stripFunc(tempDado['descricao'], 'atividade')) if stripFunc(tempDado['descricao'], 'atividade') != '' else 'N/A'
+            produto = int(stripFunc(tempDado['descricao'], 'produto')) if stripFunc(tempDado['descricao'], 'produto') != '' else 'N/A'
+            atividadeSISGP = normalize(tempDado['titulo']) if tempDado['titulo'] != '' else 'N/A'
 
             # Verifica se existem dados de auditoria
             if depara is not None:
@@ -38,7 +38,7 @@ def verificar_campo_descricao():
                     tproduto = int(row[6]) if row[6] != '' else row[6]
 
                     # Verifica se há correspondência nos campos demanda, atividade e produto
-                    if demanda == tdemanda and atividade == tatividade and produto == tproduto:
+                    if demanda == tdemanda and (atividade == tatividade or atividade == 'N/A') and (produto == tproduto or produto == 'N/A'):
                         matching_items.append((tdemanda, tatividade, tproduto))
 
                 # Verifica se há correspondência também no campo atividadeSISGP
@@ -49,9 +49,8 @@ def verificar_campo_descricao():
                     tatividadeSISGP = normalize(f'{row[9]}-{row[10]} - {row[12]}')
 
                     # Verifica se há correspondência nos campos demanda, atividade e produto
-                    if demanda == tdemanda and atividade == tatividade and produto == tproduto and atividadeSISGP == tatividadeSISGP:
+                    if (demanda == tdemanda and (atividade == tatividade or atividade == 'N/A') and (produto == tproduto or produto == 'N/A') and atividadeSISGP == tatividadeSISGP) or demanda == 13:
                         matching_item = f'{tatividadeSISGP}'
-
 
                 # Verifica se há correspondência nos campos e envia notificação em caso de erro
                 if not matching_items:
@@ -59,7 +58,7 @@ def verificar_campo_descricao():
                 elif len(matching_items) > 1:
                     tempConcat += f"<td>Erro: Múltiplas correspondências encontradas para a Descrição com demanda {demanda}, atividade {atividade}, produto {produto}.</td><td>{tempDado['titulo']}</td><td>{tempDado['tempoPrevistoTotal']}</td></tr>"
                 if matching_item == '':
-                    tempConcat += f"<td>Erro: Nenhuma correspondência encontrada para a Descrição com demanda {demanda}, atividade {atividade}, produto {produto}, atividadeSISGP {atividadeSISGP}.</td><td>{tempDado['titulo']}</td><td>{tempDado['tempoPrevistoTotal']}</td></tr>"
+                    tempConcat += f"<td>Erro: Nenhuma correspondência de atividade SISGP encontrada para a Descrição com demanda {demanda}, atividade {atividade}, produto {produto}.</td><td>{tempDado['titulo']}</td><td>{tempDado['tempoPrevistoTotal']}</td></tr>"
 
                 # Verifica se é demanda 2 ou 3 e se o stripFunc retorna um número válido
                 if demanda in [2, 3]:
